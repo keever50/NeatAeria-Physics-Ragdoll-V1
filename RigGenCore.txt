@@ -1,0 +1,113 @@
+--@name RigGenCore
+--@author Neatro
+--@shared
+--Version 1.0_2
+
+if SERVER then
+    --Ragdoll={}
+    
+    function createProp(Offset, Pos, Ang, Model, Frozen)
+        return prop.create(Offset+Pos,Ang,Model,Frozen)
+    end
+    
+    function ragdollcreate(Pos, Freeze, Friction)
+    SpineB = createProp(Pos, Vector(0,0,24), Angle(0,0,0), "models/sprops/cuboids/height06/size_2/cube_12x12x6.mdl", true)
+    SpineT = createProp(Pos, Vector(0,12,24), Angle(0,0,0), "models/sprops/cuboids/height06/size_2/cube_12x12x6.mdl", true)
+    
+    LegTL = createProp(Pos, Vector(3,-15,24), Angle(0,90,0), "models/sprops/cuboids/height06/size_1/cube_6x18x6.mdl", true)
+    LegTR = createProp(Pos, Vector(-3,-15,24), Angle(0,90,0), "models/sprops/cuboids/height06/size_1/cube_6x18x6.mdl", true)
+    
+    timer.simple(1,function()
+        LegBL = createProp(Pos, Vector(3,-15-18,24), Angle(0,90,0), "models/sprops/cuboids/height06/size_1/cube_6x18x6.mdl", true)
+        LegBR = createProp(Pos, Vector(-3,-15-18,24), Angle(0,90,0), "models/sprops/cuboids/height06/size_1/cube_6x18x6.mdl", true)
+        FootL = createProp(Pos, Vector(3,-15-18-10.5,24+3), Angle(90,90,0), "models/sprops/rectangles/size_1_5/rect_6x12x3.mdl", true)
+        FootR = createProp(Pos, Vector(-3,-15-18-10.5,24+3), Angle(90,90,0), "models/sprops/rectangles/size_1_5/rect_6x12x3.mdl", true)
+    end)
+    
+    timer.simple(2,function()
+        ArmTL = createProp(Pos, Vector(9,-15+18+6,24), Angle(0,90,0), "models/sprops/cuboids/height06/size_1/cube_6x18x6.mdl", true)
+        ArmTR = createProp(Pos, Vector(-9,-15+18+6,24), Angle(0,90,0), "models/sprops/cuboids/height06/size_1/cube_6x18x6.mdl", true)
+        
+        ArmBL = createProp(Pos, Vector(9,-15+12,24), Angle(0,90,0), "models/sprops/cuboids/height06/size_1/cube_6x18x6.mdl", true)
+        ArmBR = createProp(Pos, Vector(-9,-15+12,24), Angle(0,90,0), "models/sprops/cuboids/height06/size_1/cube_6x18x6.mdl", true)
+    end)
+    
+    timer.simple(3,function()
+        HandL = createProp(Pos, Vector(9,-15,24), Angle(0,90,0), "models/sprops/rectangles/size_1_5/rect_6x6x3.mdl", true)
+        HandR = createProp(Pos, Vector(-9,-15,24), Angle(0,90,0), "models/sprops/rectangles/size_1_5/rect_6x6x3.mdl", true)
+        
+        Head = createProp(Pos, Vector(0,24,24), Angle(0,90,0), "models/sprops/cuboids/height12/size_1/cube_12x12x12.mdl", true)
+    end)
+    Ragdoll={}
+    
+    --SpineB
+    
+    timer.simple(4,function()
+        
+        Ragdoll[1]=SpineB
+        Ragdoll[2]=SpineT
+        Ragdoll[3]=LegTL
+        Ragdoll[4]=LegTR
+        Ragdoll[5]=LegBL
+        Ragdoll[6]=LegBR
+        Ragdoll[7]=FootL
+        Ragdoll[8]=FootR
+        Ragdoll[9]=ArmTL
+        Ragdoll[10]=ArmTR
+        Ragdoll[11]=ArmBL
+        Ragdoll[12]=ArmBR
+        Ragdoll[13]=HandL
+        Ragdoll[14]=HandR
+        Ragdoll[15]=Head
+    
+        constraint.ballsocketadv(SpineB,SpineT,0,0,Vector(0,6,0),Vector(0),0,0,Vector(-22,-0.1,-22),Vector(22,0.1,22),Vector(Friction),false,true)
+        constraint.ballsocketadv(SpineT,Head,0,0,Vector(0,6,0),Vector(0),0,0,Vector(-22,-45,-22),Vector(22,45,22),Vector(Friction),false,true)
+        
+        constraint.ballsocketadv(SpineB,LegTL,0,0,Vector(0,-6,0),Vector(0),0,0,Vector(-100,-0.1,-0.1),Vector(22,0.1,45),Vector(Friction),false,true)
+        constraint.ballsocketadv(SpineB,LegTR,0,0,Vector(0,-6,0),Vector(0),0,0,Vector(-100,-0.1,-45),Vector(22,0.1,0.1),Vector(Friction),false,true)
+        
+        constraint.nocollide(LegTL,LegTR,0,0)
+        
+        constraint.ballsocketadv(LegTL,LegBL,0,0,Vector(-9,0,0),Vector(0),0,0,Vector(-0.1,-0.1,-0.1),Vector(160,0.1,0.1),Vector(Friction),false,true)
+        constraint.ballsocketadv(LegTR,LegBR,0,0,Vector(-9,0,0),Vector(0),0,0,Vector(-0.1,-0.1,-0.1),Vector(160,0.1,0.1),Vector(Friction),false,true)
+        
+        constraint.nocollide(LegTL,LegBL,0,0)
+        constraint.nocollide(LegTR,LegBR,0,0)
+        constraint.nocollide(LegBL,LegBR,0,0)
+        
+        constraint.nocollide(LegTL,LegBR,0,0)
+        constraint.nocollide(LegTR,LegBL,0,0)
+        
+        constraint.ballsocketadv(LegBL,FootL,0,0,Vector(-9,0,0),Vector(0),0,0,Vector(-45,-0.1,-0.1),Vector(45,0.1,0.1),Vector(Friction),false,true)
+        constraint.ballsocketadv(LegBR,FootR,0,0,Vector(-9,0,0),Vector(0),0,0,Vector(-45,-0.1,-0.1),Vector(45,0.1,0.1),Vector(Friction),false,true)
+        
+        constraint.ballsocketadv(SpineT,ArmTL,0,0,Vector(9,3,0),Vector(0),0,0,Vector(-160,-90,-90),Vector(0.1,90,90),Vector(Friction),false,true)
+        constraint.ballsocketadv(SpineT,ArmTR,0,0,Vector(-9,3,0),Vector(0),0,0,Vector(-0.1,-90,-90),Vector(160,90,90),Vector(Friction),false,true)
+        
+        constraint.ballsocketadv(ArmTL,ArmBL,0,0,Vector(-6,0,0),Vector(0),0,0,Vector(-160,-0.1,-0.1),Vector(0.1,0.1,0.1),Vector(Friction),false,true)
+        constraint.ballsocketadv(ArmTR,ArmBR,0,0,Vector(-6,0,0),Vector(0),0,0,Vector(-160,-0.1,-0.1),Vector(0.1,0.1,0.1),Vector(Friction),false,true)
+        
+        constraint.ballsocketadv(ArmBL,HandL,0,0,Vector(-9,0,0),Vector(0),0,0,Vector(-90,-90,-90),Vector(90,90,90),Vector(Friction),false,true)
+        constraint.ballsocketadv(ArmBR,HandR,0,0,Vector(-9,0,0),Vector(0),0,0,Vector(-90,-90,-90),Vector(90,90,90),Vector(Friction),false,true)
+        
+        constraint.nocollide(Head,ArmTL,0,0)
+        constraint.nocollide(Head,ArmTR,0,0)
+        
+        for I = 1,15 do
+            if Ragdoll[I] then
+                Ragdoll[I]:setFrozen(Freeze)
+                Ragdoll[I]:setPhysMaterial("zombieflesh")
+            end
+            
+            
+        end
+    
+        
+        return Ragdoll
+        
+    end)
+        return Ragdoll
+    end
+    
+    --ragdollcreate(chip():getPos())
+end

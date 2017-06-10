@@ -1,0 +1,12 @@
+--@name NeatAeria Physics Ragdoll V1
+--@author Neatro, Aeralius
+--@include riggen/RigGenCore.txt
+require("riggen/RigGenCore.txt")
+
+if SERVER then
+     Rag = ragdollcreate(chip():getPos()) 
+     
+
+end
+
+    
