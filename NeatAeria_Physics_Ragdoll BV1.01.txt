@@ -1,0 +1,91 @@
+--@name NeatAeria Physics Ragdoll V1
+--@author Neatro, Aeralius
+--@include NeatAeria-Physics-Ragdoll-V1/RigGenCore.txt
+require("NeatAeria-Physics-Ragdoll-V1/RigGenCore.txt")
+
+if SERVER then
+    Rig = {}
+    
+    Clk = 0
+    AveragePosition = Vector()
+    AverageFoot = Vector()
+    AverageFloor = Vector()
+    First = true
+    --Generate rig
+    Rig = ragdollcreate(chip():getPos(),false,1)
+    
+    Holo = holograms.create(chip():getPos(),Angle(),"models/sprops/misc/origin.mdl",Vector(1))
+    Holo2 = holograms.create(chip():getPos(),Angle(),"models/sprops/misc/origin.mdl",Vector(1))
+    Holo3 = holograms.create(chip():getPos(),Angle(),"models/sprops/misc/origin.mdl",Vector(1))
+        --Ragdoll[1]=SpineB --Bottom Chest
+        --Ragdoll[2]=SpineT --Top Chest
+        --Ragdoll[3]=LegTL  --Top Left Leg
+        --Ragdoll[4]=LegTR  --Top Right Leg
+        --Ragdoll[5]=LegBL  --Bottom Left Leg 
+        --Ragdoll[6]=LegBR  --Bottom Right Leg
+        --Ragdoll[7]=FootL  --Left Foot
+        --Ragdoll[8]=FootR  --Right Foot
+        --Ragdoll[9]=ArmTL  --Top Left Arm
+        --Ragdoll[10]=ArmTR --Top Right Arm
+        --Ragdoll[11]=ArmBL --Bottom Left Arm
+        --Ragdoll[12]=ArmBR --Bottom Right Arm
+        --Ragdoll[13]=HandL --Left Hand
+        --Ragdoll[14]=HandR --Right Hand
+        --Ragdoll[15]=Head  --Head
+        
+    hook.add("tick","clk",function()
+        --Execute
+        --print(#Ragdoll)
+        if #Rig == 15 then
+            Clk = Clk + 1
+            
+            if First then
+                print("Loaded!")
+                
+                First = false
+            end
+            AveragePosition=Vector(0)
+            for I = 1, 15 do
+                if Rig[I]:getPos() != nil then
+                    AveragePosition=AveragePosition+(Rig[I]:getPos())
+                    --print(I)
+                end
+            end
+            AveragePosition=AveragePosition/15
+            
+            AverageFoot=(Ragdoll[7]:getPos()+Ragdoll[8]:getPos())/2
+            
+            if Ragdoll[7]:getPos().z>Ragdoll[8]:getPos().z then
+                AverageFloor=AverageFoot*Vector(1,1,0)+Vector(0,0,Ragdoll[8]:getPos().z)
+            else
+                AverageFloor=AverageFoot*Vector(1,1,0)+Vector(0,0,Ragdoll[7]:getPos().z)
+            end
+            
+            Holo:setPos(AveragePosition)
+            Holo2:setPos(AverageFoot)
+            Holo3:setPos(AverageFloor)
+            
+            FootTrace=trace.trace(AverageFloor,AverageFloor+Vector(0,0,-12),Rig)
+            --[7]:applyForceCenter(Vector(0,0,60)*Rig[7]:getMass())
+            --Rig[8]:applyForceCenter(Vector(0,0,60)*Rig[8]:getMass())
+            --:rotate(Angle(0,Rig[1]:getAngles().y,0))
+            BodyAngle=Rig[1]:getAngles()
+            
+            AddL=Vector(2,math.cos(Clk/20)*-12,math.sin(Clk/20)*-64)
+            AddL:rotate(Angle(0,BodyAngle.y,0))
+            AddR=Vector(-2,math.cos(Clk/20)*12,math.sin(Clk/20)*64)
+            AddR:rotate(Angle(0,BodyAngle.y,0))
+            
+            if FootTrace.Hit then
+            Rig[15]:applyForceCenter(Vector(0,0,40)*Rig[15]:getMass())
+            Rig[2]:applyForceCenter(Vector(0,0,140-(Ragdoll[2]:getPos().z-AverageFoot.z))*Rig[2]:getMass())
+            Rig[7]:applyForceCenter((Vector(0,0,-30)+AddL)*Rig[7]:getMass())
+            Rig[8]:applyForceCenter((Vector(0,0,-30)+AddR)*Rig[8]:getMass())
+                
+            
+            end
+            
+        end
+    end)
+    
+end
